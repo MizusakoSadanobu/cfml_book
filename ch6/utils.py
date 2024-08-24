@@ -66,8 +66,7 @@ def aggregate_simulation_results(
         DataFrame(selection_result_list)
         .stack()
         .reset_index(1)
-        .drop(columns=["level_1"])
-        .rename(columns={0: "selection"})
+        .rename(columns={"level_2": "est",0: "selection"})
     )
     result_df = pd.concat([estimation_result_df, selection_result_df], axis=1)
     result_df[experiment_config_name] = experiment_config_value
@@ -75,7 +74,7 @@ def aggregate_simulation_results(
     result_df["bias"] = 0
     result_df["variance"] = 0
     result_df["true_value"] = policy_value_of_pi
-    sample_mean = DataFrame(result_df.groupby(["est"]).mean().value).reset_index()
+    sample_mean = result_df.groupby(["est"], as_index=False).value.mean()
     for est_ in sample_mean["est"]:
         estimates = result_df.loc[result_df["est"] == est_, "value"].values
         mean_estimates = sample_mean.loc[sample_mean["est"] == est_, "value"].values
